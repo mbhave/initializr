@@ -78,9 +78,9 @@ public class ProjectGeneratorTests extends AbstractProjectGeneratorTests {
 		request.setType("gradle-build");
 		ProjectAssert gradleProject = generateProject(request).isGradleProject();
 		gradleProject.gradleBuildAssert().contains(
-				"implementation('org.springframework.boot:spring-boot-starter-web')")
+				"implementation 'org.springframework.boot:spring-boot-starter-web'")
 				.contains(
-						"testImplementation('org.springframework.boot:spring-boot-starter-test')");
+						"testImplementation 'org.springframework.boot:spring-boot-starter-test'");
 		gradleProject.gradleSettingsAssert().hasProjectName("demo");
 		verifyProjectSuccessfulEventFor(request);
 	}

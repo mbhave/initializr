@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.spring.initializr.InitializrException;
+import io.spring.initializr.generator.spike.ProjectGeneratorInvoker;
 import io.spring.initializr.metadata.BillOfMaterials;
 import io.spring.initializr.metadata.Dependency;
 import io.spring.initializr.metadata.InitializrConfiguration.Env.Maven;
@@ -84,6 +86,9 @@ public class ProjectGenerator {
 	@Autowired
 	private ProjectResourceLocator projectResourceLocator = new ProjectResourceLocator();
 
+	@Autowired
+	private ProjectGeneratorInvoker projectGeneratorInvoker;
+
 	@Value("${TMPDIR:.}/initializr")
 	private String tmpdir;
 
@@ -113,6 +118,11 @@ public class ProjectGenerator {
 
 	public void setProjectResourceLocator(ProjectResourceLocator projectResourceLocator) {
 		this.projectResourceLocator = projectResourceLocator;
+	}
+
+	public void setProjectGeneratorInvoker(
+			ProjectGeneratorInvoker projectGeneratorInvoker) {
+		this.projectGeneratorInvoker = projectGeneratorInvoker;
 	}
 
 	public void setTmpdir(String tmpdir) {
@@ -180,10 +190,16 @@ public class ProjectGenerator {
 	 */
 	public File generateProjectStructure(ProjectRequest request) {
 		try {
-			Map<String, Object> model = resolveModel(request);
-			File rootDir = generateProjectStructure(request, model);
+			ProjectRequest resolvedRequest = this.requestResolver.resolve(request,
+					this.metadataProvider.get());
+			Path rootDir = this.projectGeneratorInvoker
+					.generateProjectStructure(resolvedRequest);
 			publishProjectGeneratedEvent(request);
-			return rootDir;
+			return rootDir.toFile();
+		}
+		catch (IOException ex) {
+			publishProjectFailedEvent(request, ex);
+			throw new IllegalStateException(ex); // TODO
 		}
 		catch (InitializrException ex) {
 			publishProjectFailedEvent(request, ex);
