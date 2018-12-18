@@ -55,7 +55,7 @@ public class InitializrMetadataMavenBuildContributor
 					.createSpringBootBom(springBootVersion, versionProperty));
 			if (hasBom(build, springBootBom)) {
 				build.addInternalVersionProperty(versionProperty, springBootVersion);
-				build.addBom(springBootBom);
+				build.boms().add("spring-boot", springBootBom);
 			}
 		}
 		if (!maven.isSpringBootStarterParent(parentPom)) {
@@ -67,7 +67,7 @@ public class InitializrMetadataMavenBuildContributor
 	}
 
 	private boolean hasBom(MavenBuild build, BillOfMaterials bom) {
-		return build.getBoms().stream()
+		return build.boms().items()
 				.anyMatch((candidate) -> candidate.getGroupId().equals(bom.getGroupId())
 						&& candidate.getArtifactId().equals(candidate.getArtifactId()));
 	}

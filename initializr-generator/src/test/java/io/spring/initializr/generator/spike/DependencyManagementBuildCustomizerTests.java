@@ -20,6 +20,7 @@ import io.spring.initializr.generator.ProjectDescription;
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuild;
 import io.spring.initializr.generator.spike.build.DependencyManagementBuildCustomizer;
+import io.spring.initializr.generator.spike.build.InitializrMetadataBuildItemResolver;
 import io.spring.initializr.generator.util.Version;
 import io.spring.initializr.metadata.BillOfMaterials;
 import io.spring.initializr.metadata.Dependency;
@@ -47,11 +48,10 @@ public class DependencyManagementBuildCustomizerTests {
 		InitializrMetadata metadata = InitializrMetadataTestBuilder.withDefaults()
 				.addBom("foo-bom", bom).addBom("bar-bom", additionalBom)
 				.addDependencyGroup("test", dependency).build();
-		Build build = new MavenBuild();
-		build.addDependency(dependency.getId(),
-				ConceptTranslator.toDependency(dependency));
+		Build build = createBuild(metadata);
+		build.dependencies().add(dependency.getId());
 		customizeBuild(build, metadata);
-		assertThat(build.getBoms()).hasSize(2);
+		assertThat(build.boms().items()).hasSize(2);
 	}
 
 	@Test
@@ -66,12 +66,15 @@ public class DependencyManagementBuildCustomizerTests {
 				.addRepository("foo-repo", "foo-repo", "http://example.com/foo", false)
 				.addRepository("bar-repo", "bar-repo", "http://example.com/bar", false)
 				.addDependencyGroup("test", dependency).build();
-		Build build = new MavenBuild();
-		build.addDependency(dependency.getId(),
-				ConceptTranslator.toDependency(dependency));
+		Build build = createBuild(metadata);
+		build.dependencies().add(dependency.getId());
 		customizeBuild(build, metadata);
-		assertThat(build.getRepositories()).hasSize(2);
-		assertThat(build.getPluginRepositories()).isEmpty();
+		assertThat(build.repositories().items()).hasSize(2);
+		assertThat(build.pluginRepositories().items()).isEmpty();
+	}
+
+	private MavenBuild createBuild(InitializrMetadata metadata) {
+		return new MavenBuild(new InitializrMetadataBuildItemResolver(metadata));
 	}
 
 	private void customizeBuild(Build build, InitializrMetadata metadata) {

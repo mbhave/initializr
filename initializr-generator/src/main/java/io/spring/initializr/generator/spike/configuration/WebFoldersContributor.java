@@ -58,7 +58,7 @@ public class WebFoldersContributor implements ProjectContributor {
 	}
 
 	private boolean hasWebFacet() {
-		return this.build.getDependencies().keySet().stream().anyMatch((id) -> {
+		return this.build.dependencies().ids().anyMatch((id) -> {
 			Dependency dependency = this.metadata.getDependencies().get(id);
 			if (dependency != null) {
 				return dependency.getFacets().contains("web");

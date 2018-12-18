@@ -42,14 +42,14 @@ public class InitializrDefaultStarterBuildCustomizer implements BuildCustomizer<
 
 	@Override
 	public void customize(Build build) {
-		boolean hasStarter = build.getDependencies().entrySet().stream()
-				.map((entry) -> this.metadata.getDependencies().get(entry.getKey()))
+		boolean hasStarter = build.dependencies().ids()
+				.map((id) -> this.metadata.getDependencies().get(id))
 				.filter(Objects::nonNull).anyMatch(this::isValidStarter);
 		if (!hasStarter) {
 			Dependency root = new Dependency();
 			root.setId(ProjectRequest.DEFAULT_STARTER);
 			root.asSpringBootStarter("");
-			build.addDependency(ProjectRequest.DEFAULT_STARTER,
+			build.dependencies().add(ProjectRequest.DEFAULT_STARTER,
 					ConceptTranslator.toDependency(root));
 		}
 	}

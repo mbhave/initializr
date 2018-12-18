@@ -23,12 +23,14 @@ import java.util.function.Consumer;
 import io.spring.initializr.generator.ProjectDescription;
 import io.spring.initializr.generator.ProjectRequest;
 import io.spring.initializr.generator.buildsystem.Build;
+import io.spring.initializr.generator.buildsystem.BuildItemResolver;
 import io.spring.initializr.generator.buildsystem.gradle.GradleBuildSystem;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuildSystem;
 import io.spring.initializr.generator.language.Language;
 import io.spring.initializr.generator.packaging.Packaging;
 import io.spring.initializr.generator.project.ProjectGenerator;
 import io.spring.initializr.generator.project.build.BuildCustomizer;
+import io.spring.initializr.generator.spike.build.InitializrMetadataBuildItemResolver;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.metadata.InitializrMetadataProvider;
 
@@ -74,8 +76,11 @@ public class ProjectGeneratorInvoker {
 	private void customizeProjectGenerationContext(
 			AnnotationConfigApplicationContext context, ProjectRequest request) {
 		context.setParent(this.parentApplicationContext);
-		context.registerBean(InitializrMetadata.class, () -> this.parentApplicationContext
-				.getBean(InitializrMetadataProvider.class).get());
+		InitializrMetadata metadata = this.parentApplicationContext
+				.getBean(InitializrMetadataProvider.class).get();
+		context.registerBean(InitializrMetadata.class, () -> metadata);
+		context.registerBean(BuildItemResolver.class,
+				() -> new InitializrMetadataBuildItemResolver(metadata));
 		context.registerBean("temporaryBuildCustomizer", BuildCustomizer.class,
 				() -> buildCustomizer(request));
 		this.projectGenerationContext.accept(context);

@@ -20,6 +20,7 @@ import io.spring.initializr.generator.buildsystem.DependencyType;
 import io.spring.initializr.generator.util.VersionReference;
 import io.spring.initializr.metadata.BillOfMaterials;
 import io.spring.initializr.metadata.Dependency;
+import io.spring.initializr.metadata.Repository;
 import io.spring.initializr.util.Version;
 import io.spring.initializr.util.VersionProperty;
 
@@ -59,6 +60,9 @@ public final class ConceptTranslator {
 	 */
 	public static io.spring.initializr.generator.buildsystem.Dependency toDependency(
 			Dependency dependency) {
+		if (dependency == null) {
+			return null;
+		}
 		return new io.spring.initializr.generator.buildsystem.Dependency(
 				dependency.getGroupId(), dependency.getArtifactId(),
 				VersionReference.ofValue(dependency.getVersion()),
@@ -90,18 +94,37 @@ public final class ConceptTranslator {
 	}
 
 	/**
-	 * Return a spike dependency from a {@link BillOfMaterials}.
+	 * Return a spike bom from a {@link BillOfMaterials}.
 	 * @param bom a regular bom
 	 * @return an equivalent spike structure
 	 */
 	public static io.spring.initializr.generator.buildsystem.BillOfMaterials toBom(
 			BillOfMaterials bom) {
+		if (bom == null) {
+			return null;
+		}
 		VersionReference version = (bom.getVersionProperty() != null)
 				? VersionReference.ofProperty(
 						ConceptTranslator.toVersionProperty(bom.getVersionProperty()))
 				: VersionReference.ofValue(bom.getVersion());
 		return new io.spring.initializr.generator.buildsystem.BillOfMaterials(
 				bom.getGroupId(), bom.getArtifactId(), version, bom.getOrder());
+	}
+
+	/**
+	 * Return a spike repository from a {@link Repository}.
+	 * @param id the repository id
+	 * @param repository a regular repository
+	 * @return an equivalent spike structure
+	 */
+	public static io.spring.initializr.generator.buildsystem.MavenRepository toRepository(
+			String id, Repository repository) {
+		if (repository == null) {
+			return null;
+		}
+		return new io.spring.initializr.generator.buildsystem.MavenRepository(id,
+				repository.getName(), repository.getUrl().toExternalForm(),
+				repository.isSnapshotsEnabled());
 	}
 
 }
