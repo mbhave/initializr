@@ -44,13 +44,13 @@ public class WarPackagingWebStarterBuildCustomizer implements BuildCustomizer<Bu
 		if (!hasWebFacet(build)) {
 			// Need to be able to bootstrap the web app
 			Dependency dependency = determineWebDependency(this.metadata);
-			build.addDependency(dependency.getId(),
+			build.dependencies().add(dependency.getId(),
 					ConceptTranslator.toDependency(dependency));
 		}
 		// Add the tomcat starter in provided scope
 		Dependency tomcat = new Dependency().asSpringBootStarter("tomcat");
 		tomcat.setScope(Dependency.SCOPE_PROVIDED);
-		build.addDependency("tomcat", ConceptTranslator.toDependency(tomcat));
+		build.dependencies().add("tomcat", ConceptTranslator.toDependency(tomcat));
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class WarPackagingWebStarterBuildCustomizer implements BuildCustomizer<Bu
 	}
 
 	private boolean hasWebFacet(Build build) {
-		return build.getDependencies().keySet().stream().anyMatch((id) -> {
+		return build.dependencies().ids().anyMatch((id) -> {
 			Dependency dependency = this.metadata.getDependencies().get(id);
 			if (dependency != null) {
 				return dependency.getFacets().contains("web");

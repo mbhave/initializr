@@ -22,7 +22,7 @@ import java.util.Collections;
 
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuild;
-import io.spring.initializr.generator.spike.ConceptTranslator;
+import io.spring.initializr.generator.spike.build.InitializrMetadataBuildItemResolver;
 import io.spring.initializr.metadata.Dependency;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.test.metadata.InitializrMetadataTestBuilder;
@@ -51,9 +51,9 @@ public class WebFoldersContributorTests {
 		web.setFacets(Collections.singletonList("web"));
 		InitializrMetadata metadata = InitializrMetadataTestBuilder.withDefaults()
 				.addDependencyGroup("test", simple, web).build();
-		Build build = new MavenBuild();
-		build.addDependency("simple", ConceptTranslator.toDependency(simple));
-		build.addDependency("web", ConceptTranslator.toDependency(web));
+		Build build = createBuild(metadata);
+		build.dependencies().add("simple");
+		build.dependencies().add("web");
 		Path projectDir = contribute(build, metadata);
 		assertThat(projectDir.resolve("src/main/resources/templates")).isDirectory();
 		assertThat(projectDir.resolve("src/main/resources/static")).isDirectory();
@@ -68,11 +68,15 @@ public class WebFoldersContributorTests {
 		web.setFacets(Collections.singletonList("web"));
 		InitializrMetadata metadata = InitializrMetadataTestBuilder.withDefaults()
 				.addDependencyGroup("test", simple, web).build();
-		Build build = new MavenBuild();
-		build.addDependency("simple", ConceptTranslator.toDependency(simple));
+		Build build = createBuild(metadata);
+		build.dependencies().add("simple");
 		Path projectDir = contribute(build, metadata);
 		assertThat(projectDir.resolve("src/main/resources/templates")).doesNotExist();
 		assertThat(projectDir.resolve("src/main/resources/static")).doesNotExist();
+	}
+
+	private Build createBuild(InitializrMetadata metadata) {
+		return new MavenBuild(new InitializrMetadataBuildItemResolver(metadata));
 	}
 
 	private Path contribute(Build build, InitializrMetadata metadata) throws IOException {

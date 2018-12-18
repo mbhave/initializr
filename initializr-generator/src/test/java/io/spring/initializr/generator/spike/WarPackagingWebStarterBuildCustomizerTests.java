@@ -20,6 +20,7 @@ import java.util.Collections;
 
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuild;
+import io.spring.initializr.generator.spike.build.InitializrMetadataBuildItemResolver;
 import io.spring.initializr.generator.spike.build.WarPackagingWebStarterBuildCustomizer;
 import io.spring.initializr.metadata.Dependency;
 import io.spring.initializr.metadata.InitializrMetadata;
@@ -41,10 +42,10 @@ public class WarPackagingWebStarterBuildCustomizerTests {
 				Dependency.SCOPE_COMPILE);
 		InitializrMetadata metadata = InitializrMetadataTestBuilder.withDefaults()
 				.addDependencyGroup("test", dependency).build();
-		Build build = new MavenBuild();
-		build.addDependency("test", ConceptTranslator.toDependency(dependency));
+		Build build = createBuild(metadata);
+		build.dependencies().add("test");
 		new WarPackagingWebStarterBuildCustomizer(metadata).customize(build);
-		assertThat(build.getDependencies()).containsOnlyKeys("test", "web", "tomcat");
+		assertThat(build.dependencies().ids()).containsOnly("test", "web", "tomcat");
 	}
 
 	@Test
@@ -55,10 +56,10 @@ public class WarPackagingWebStarterBuildCustomizerTests {
 				null, Dependency.SCOPE_COMPILE);
 		InitializrMetadata metadata = InitializrMetadataTestBuilder.withDefaults()
 				.addDependencyGroup("test", dependency, web).build();
-		Build build = new MavenBuild();
-		build.addDependency("test", ConceptTranslator.toDependency(dependency));
+		Build build = createBuild(metadata);
+		build.dependencies().add("test");
 		new WarPackagingWebStarterBuildCustomizer(metadata).customize(build);
-		assertThat(build.getDependencies()).containsOnlyKeys("test", "web", "tomcat");
+		assertThat(build.dependencies().ids()).containsOnly("test", "web", "tomcat");
 	}
 
 	@Test
@@ -68,10 +69,14 @@ public class WarPackagingWebStarterBuildCustomizerTests {
 		dependency.setFacets(Collections.singletonList("web"));
 		InitializrMetadata metadata = InitializrMetadataTestBuilder.withDefaults()
 				.addDependencyGroup("test", dependency).build();
-		Build build = new MavenBuild();
-		build.addDependency("test", ConceptTranslator.toDependency(dependency));
+		Build build = createBuild(metadata);
+		build.dependencies().add("test");
 		new WarPackagingWebStarterBuildCustomizer(metadata).customize(build);
-		assertThat(build.getDependencies()).containsOnlyKeys("test", "tomcat");
+		assertThat(build.dependencies().ids()).containsOnly("test", "tomcat");
+	}
+
+	private Build createBuild(InitializrMetadata metadata) {
+		return new MavenBuild(new InitializrMetadataBuildItemResolver(metadata));
 	}
 
 }

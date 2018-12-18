@@ -16,10 +16,10 @@
 
 package io.spring.initializr.generator.spike.build;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import io.spring.initializr.generator.ProjectDescription;
 import io.spring.initializr.generator.buildsystem.Build;
@@ -61,11 +61,11 @@ public class DependencyManagementBuildCustomizer implements BuildCustomizer<Buil
 	}
 
 	protected void contributeDependencyManagement(Build build) {
-		Map<String, BillOfMaterials> boms = new LinkedHashMap<>();
+		Map<String, BillOfMaterials> resolvedBoms = new LinkedHashMap<>();
 		Map<String, Repository> repositories = new LinkedHashMap<>();
 		mapDependencies(build).forEach((dependency) -> {
 			if (dependency.getBom() != null) {
-				resolveBom(boms, dependency.getBom(), ConceptTranslator
+				resolveBom(resolvedBoms, dependency.getBom(), ConceptTranslator
 						.fromVersion(this.projectDescription.getPlatformVersion()));
 			}
 			if (dependency.getRepository() != null) {
@@ -74,36 +74,27 @@ public class DependencyManagementBuildCustomizer implements BuildCustomizer<Buil
 						.getConfiguration().getEnv().getRepositories().get(key));
 			}
 		});
-		boms.values().forEach((bom) -> {
+		resolvedBoms.values().forEach((bom) -> {
 			bom.getRepositories()
 					.forEach((repositoryId) -> repositories.computeIfAbsent(repositoryId,
 							(key) -> this.metadata.getConfiguration().getEnv()
 									.getRepositories().get(key)));
 		});
-
-		boms.values().forEach((bom) -> {
-			build.addBom(ConceptTranslator.toBom(bom));
+		resolvedBoms.forEach((key, bom) -> {
+			build.boms().add(key, ConceptTranslator.toBom(bom));
 			if (bom.getVersionProperty() != null) {
 				build.addVersionProperty(
 						ConceptTranslator.toVersionProperty(bom.getVersionProperty()),
 						bom.getVersion());
 			}
 		});
-		repositories.forEach((id, repository) -> build.addRepository(id,
-				repository.getName(), repository.getUrl().toExternalForm(),
-				repository.isSnapshotsEnabled()));
+		repositories.keySet().forEach((id) -> build.repositories().add(id));
 	}
 
-	private List<Dependency> mapDependencies(Build build) {
-		List<Dependency> dependenciesMetadata = new ArrayList<>();
-		build.getDependencies().forEach((id, dependency) -> {
-			Dependency dependencyMetadata = this.metadata.getDependencies().get(id);
-			// root starter or on the fly dependencies have no metadata
-			if (dependencyMetadata != null) {
-				dependenciesMetadata.add(dependencyMetadata);
-			}
-		});
-		return dependenciesMetadata;
+	private Stream<Dependency> mapDependencies(Build build) {
+		return build.dependencies().ids()
+				.map((id) -> this.metadata.getDependencies().get(id))
+				.filter(Objects::nonNull);
 	}
 
 	private void resolveBom(Map<String, BillOfMaterials> boms, String bomId,
