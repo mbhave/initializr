@@ -144,14 +144,19 @@ public class ProjectGenerator {
 	 */
 	public byte[] generateMavenPom(ProjectRequest request) {
 		try {
-			Map<String, Object> model = resolveModel(request);
+			ProjectRequest resolvedRequest = this.requestResolver.resolve(request,
+					this.metadataProvider.get());
 			if (!isMavenBuild(request)) {
 				throw new InvalidProjectRequestException("Could not generate Maven pom, "
 						+ "invalid project type " + request.getType());
 			}
-			byte[] content = doGenerateMavenPom(model);
+			byte[] content = this.projectGeneratorInvoker.generateBuild(resolvedRequest);
 			publishProjectGeneratedEvent(request);
 			return content;
+		}
+		catch (IOException ex) {
+			publishProjectFailedEvent(request, ex);
+			throw new IllegalStateException(ex); // TODO
 		}
 		catch (InitializrException ex) {
 			publishProjectFailedEvent(request, ex);
@@ -166,15 +171,20 @@ public class ProjectGenerator {
 	 */
 	public byte[] generateGradleBuild(ProjectRequest request) {
 		try {
-			Map<String, Object> model = resolveModel(request);
+			ProjectRequest resolvedRequest = this.requestResolver.resolve(request,
+					this.metadataProvider.get());
 			if (!isGradleBuild(request)) {
 				throw new InvalidProjectRequestException(
 						"Could not generate Gradle build, " + "invalid project type "
 								+ request.getType());
 			}
-			byte[] content = doGenerateGradleBuild(model);
+			byte[] content = this.projectGeneratorInvoker.generateBuild(resolvedRequest);
 			publishProjectGeneratedEvent(request);
 			return content;
+		}
+		catch (IOException ex) {
+			publishProjectFailedEvent(request, ex);
+			throw new IllegalStateException(ex); // TODO
 		}
 		catch (InitializrException ex) {
 			publishProjectFailedEvent(request, ex);

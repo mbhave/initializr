@@ -17,6 +17,7 @@
 package io.spring.initializr.generator.spike;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
@@ -28,8 +29,11 @@ import io.spring.initializr.generator.buildsystem.gradle.GradleBuildSystem;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuildSystem;
 import io.spring.initializr.generator.language.Language;
 import io.spring.initializr.generator.packaging.Packaging;
+import io.spring.initializr.generator.project.ProjectGenerationContext;
 import io.spring.initializr.generator.project.ProjectGenerator;
 import io.spring.initializr.generator.project.build.BuildCustomizer;
+import io.spring.initializr.generator.project.build.gradle.GradleBuildProjectContributor;
+import io.spring.initializr.generator.project.build.maven.MavenBuildProjectContributor;
 import io.spring.initializr.generator.spike.build.InitializrMetadataBuildItemResolver;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.metadata.InitializrMetadataProvider;
@@ -71,6 +75,31 @@ public class ProjectGeneratorInvoker {
 				(projectGenerationContext) -> customizeProjectGenerationContext(
 						projectGenerationContext, request));
 		return projectGenerator.generate(createProjectDescription(request));
+	}
+
+	public byte[] generateBuild(ProjectRequest request) throws IOException {
+		ProjectGenerator projectGenerator = new ProjectGenerator(
+				(projectGenerationContext) -> customizeProjectGenerationContext(
+						projectGenerationContext, request));
+		ProjectDescription projectDescription = createProjectDescription(request);
+		return projectGenerator.generate(projectDescription, this::generateBuild);
+	}
+
+	private byte[] generateBuild(ProjectGenerationContext context) throws IOException {
+		ProjectDescription projectDescription = context.getBean(ProjectDescription.class);
+		StringWriter out = new StringWriter();
+		if (projectDescription.getBuildSystem() instanceof GradleBuildSystem) {
+			GradleBuildProjectContributor buildContributor = context
+					.getBean(GradleBuildProjectContributor.class);
+			buildContributor.writeBuild(out);
+		}
+		else {
+			// Assuming Maven
+			MavenBuildProjectContributor buildContributor = context
+					.getBean(MavenBuildProjectContributor.class);
+			buildContributor.writeBuild(out);
+		}
+		return out.toString().getBytes();
 	}
 
 	private void customizeProjectGenerationContext(
