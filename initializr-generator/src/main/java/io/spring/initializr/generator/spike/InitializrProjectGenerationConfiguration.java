@@ -16,7 +16,7 @@
 
 package io.spring.initializr.generator.spike;
 
-import io.spring.initializr.generator.ProjectDescription;
+import io.spring.initializr.generator.ResolvedProjectDescription;
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.maven.ConditionalOnMaven;
 import io.spring.initializr.generator.language.kotlin.ConditionalOnKotlinLanguage;
@@ -42,12 +42,12 @@ import org.springframework.context.annotation.Bean;
 @ProjectGenerationConfiguration
 public class InitializrProjectGenerationConfiguration {
 
-	private final ProjectDescription projectDescription;
+	private final ResolvedProjectDescription projectDescription;
 
 	private final InitializrMetadata metadata;
 
-	public InitializrProjectGenerationConfiguration(ProjectDescription projectDescription,
-			InitializrMetadata metadata) {
+	public InitializrProjectGenerationConfiguration(
+			ResolvedProjectDescription projectDescription, InitializrMetadata metadata) {
 		this.projectDescription = projectDescription;
 		this.metadata = metadata;
 	}

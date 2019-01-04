@@ -16,7 +16,7 @@
 
 package io.spring.initializr.generator.spike.code.kotlin;
 
-import io.spring.initializr.generator.ProjectDescription;
+import io.spring.initializr.generator.ResolvedProjectDescription;
 import io.spring.initializr.generator.project.code.kotlin.KotlinProjectSettings;
 import io.spring.initializr.generator.spike.ConceptTranslator;
 import io.spring.initializr.metadata.InitializrMetadata;
@@ -30,8 +30,8 @@ public class InitializrMetadataKotlinProjectSettings implements KotlinProjectSet
 
 	private final String version;
 
-	public InitializrMetadataKotlinProjectSettings(ProjectDescription projectDescription,
-			InitializrMetadata metadata) {
+	public InitializrMetadataKotlinProjectSettings(
+			ResolvedProjectDescription projectDescription, InitializrMetadata metadata) {
 		this.version = metadata.getConfiguration().getEnv().getKotlin()
 				.resolveKotlinVersion(ConceptTranslator
 						.fromVersion(projectDescription.getPlatformVersion()));

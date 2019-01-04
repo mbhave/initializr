@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 
 import io.spring.initializr.generator.ProjectDescription;
 import io.spring.initializr.generator.ProjectRequest;
+import io.spring.initializr.generator.ResolvedProjectDescription;
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.BuildItemResolver;
 import io.spring.initializr.generator.buildsystem.gradle.GradleBuildSystem;
@@ -86,7 +87,8 @@ public class ProjectGeneratorInvoker {
 	}
 
 	private byte[] generateBuild(ProjectGenerationContext context) throws IOException {
-		ProjectDescription projectDescription = context.getBean(ProjectDescription.class);
+		ResolvedProjectDescription projectDescription = context
+				.getBean(ResolvedProjectDescription.class);
 		StringWriter out = new StringWriter();
 		if (projectDescription.getBuildSystem() instanceof GradleBuildSystem) {
 			GradleBuildProjectContributor buildContributor = context
