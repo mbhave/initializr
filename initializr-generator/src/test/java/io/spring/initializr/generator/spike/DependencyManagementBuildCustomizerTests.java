@@ -80,7 +80,7 @@ public class DependencyManagementBuildCustomizerTests {
 	private void customizeBuild(Build build, InitializrMetadata metadata) {
 		ProjectDescription projectDescription = new ProjectDescription();
 		projectDescription.setPlatformVersion(Version.parse("2.0.0.RELEASE"));
-		new DependencyManagementBuildCustomizer(projectDescription, metadata)
+		new DependencyManagementBuildCustomizer(projectDescription.resolve(), metadata)
 				.customize(build);
 	}
 

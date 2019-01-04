@@ -17,6 +17,7 @@
 package io.spring.initializr.generator.spike;
 
 import io.spring.initializr.generator.ProjectDescription;
+import io.spring.initializr.generator.ResolvedProjectDescription;
 import io.spring.initializr.generator.project.documentation.HelpDocument;
 import io.spring.initializr.generator.spike.documentation.InitializrMetadataHelpDocumentCustomizer;
 import io.spring.initializr.generator.util.Version;
@@ -79,7 +80,7 @@ public class InitializrMetadataHelpDocumentCustomizerTests {
 	private HelpDocument contributeHelpDocument(ProjectDescription projectDescription,
 			InitializrMetadata metadata) {
 		HelpDocument document = new HelpDocument(new MustacheTemplateRenderer(""));
-		new InitializrMetadataHelpDocumentCustomizer(projectDescription, metadata)
+		new InitializrMetadataHelpDocumentCustomizer(projectDescription.resolve(), metadata)
 				.customize(document);
 		return document;
 	}

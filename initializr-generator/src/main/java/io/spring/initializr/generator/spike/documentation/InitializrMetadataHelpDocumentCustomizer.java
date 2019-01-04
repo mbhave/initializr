@@ -16,7 +16,7 @@
 
 package io.spring.initializr.generator.spike.documentation;
 
-import io.spring.initializr.generator.ProjectDescription;
+import io.spring.initializr.generator.ResolvedProjectDescription;
 import io.spring.initializr.generator.project.documentation.GettingStartedSection;
 import io.spring.initializr.generator.project.documentation.HelpDocument;
 import io.spring.initializr.generator.project.documentation.HelpDocumentCustomizer;
@@ -30,12 +30,12 @@ import io.spring.initializr.metadata.InitializrMetadata;
  */
 public class InitializrMetadataHelpDocumentCustomizer implements HelpDocumentCustomizer {
 
-	private final ProjectDescription projectDescription;
+	private final ResolvedProjectDescription projectDescription;
 
 	private final InitializrMetadata metadata;
 
-	public InitializrMetadataHelpDocumentCustomizer(ProjectDescription projectDescription,
-			InitializrMetadata metadata) {
+	public InitializrMetadataHelpDocumentCustomizer(
+			ResolvedProjectDescription projectDescription, InitializrMetadata metadata) {
 		this.projectDescription = projectDescription;
 		this.metadata = metadata;
 	}

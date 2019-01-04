@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import io.spring.initializr.generator.ProjectDescription;
+import io.spring.initializr.generator.ResolvedProjectDescription;
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.project.build.BuildCustomizer;
 import io.spring.initializr.generator.spike.ConceptTranslator;
@@ -40,12 +40,12 @@ import org.springframework.core.Ordered;
  */
 public class DependencyManagementBuildCustomizer implements BuildCustomizer<Build> {
 
-	private final ProjectDescription projectDescription;
+	private final ResolvedProjectDescription projectDescription;
 
 	private final InitializrMetadata metadata;
 
-	public DependencyManagementBuildCustomizer(ProjectDescription projectDescription,
-			InitializrMetadata metadata) {
+	public DependencyManagementBuildCustomizer(
+			ResolvedProjectDescription projectDescription, InitializrMetadata metadata) {
 		this.projectDescription = projectDescription;
 		this.metadata = metadata;
 	}

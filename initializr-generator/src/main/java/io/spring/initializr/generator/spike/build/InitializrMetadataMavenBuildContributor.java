@@ -16,7 +16,7 @@
 
 package io.spring.initializr.generator.spike.build;
 
-import io.spring.initializr.generator.ProjectDescription;
+import io.spring.initializr.generator.ResolvedProjectDescription;
 import io.spring.initializr.generator.buildsystem.BillOfMaterials;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuild;
 import io.spring.initializr.generator.project.build.BuildCustomizer;
@@ -33,12 +33,12 @@ import io.spring.initializr.metadata.InitializrMetadata;
 public class InitializrMetadataMavenBuildContributor
 		implements BuildCustomizer<MavenBuild> {
 
-	private final ProjectDescription projectDescription;
+	private final ResolvedProjectDescription projectDescription;
 
 	private final InitializrMetadata metadata;
 
-	public InitializrMetadataMavenBuildContributor(ProjectDescription projectDescription,
-			InitializrMetadata metadata) {
+	public InitializrMetadataMavenBuildContributor(
+			ResolvedProjectDescription projectDescription, InitializrMetadata metadata) {
 		this.projectDescription = projectDescription;
 		this.metadata = metadata;
 	}
