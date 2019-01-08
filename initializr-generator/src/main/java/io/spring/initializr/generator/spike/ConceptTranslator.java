@@ -66,7 +66,7 @@ public final class ConceptTranslator {
 		return new io.spring.initializr.generator.buildsystem.Dependency(
 				dependency.getGroupId(), dependency.getArtifactId(),
 				VersionReference.ofValue(dependency.getVersion()),
-				toDependencyType(dependency.getScope()));
+				toDependencyType(dependency.getScope()), dependency.getType());
 	}
 
 	private static DependencyType toDependencyType(String scope) {
