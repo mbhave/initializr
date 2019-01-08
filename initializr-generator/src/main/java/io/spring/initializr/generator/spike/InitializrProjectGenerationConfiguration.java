@@ -18,6 +18,7 @@ package io.spring.initializr.generator.spike;
 
 import io.spring.initializr.generator.ResolvedProjectDescription;
 import io.spring.initializr.generator.buildsystem.Build;
+import io.spring.initializr.generator.buildsystem.gradle.ConditionalOnGradle;
 import io.spring.initializr.generator.buildsystem.maven.ConditionalOnMaven;
 import io.spring.initializr.generator.language.kotlin.ConditionalOnKotlinLanguage;
 import io.spring.initializr.generator.packaging.war.ConditionalOnWarPackaging;
@@ -26,6 +27,8 @@ import io.spring.initializr.generator.project.code.kotlin.KotlinProjectSettings;
 import io.spring.initializr.generator.spike.build.DependencyManagementBuildCustomizer;
 import io.spring.initializr.generator.spike.build.InitializrDefaultStarterBuildCustomizer;
 import io.spring.initializr.generator.spike.build.InitializrMetadataMavenBuildContributor;
+import io.spring.initializr.generator.spike.build.KotlinJpaGradleBuildCustomizer;
+import io.spring.initializr.generator.spike.build.KotlinJpaMavenBuildCustomizer;
 import io.spring.initializr.generator.spike.build.WarPackagingWebStarterBuildCustomizer;
 import io.spring.initializr.generator.spike.code.kotlin.InitializrMetadataKotlinProjectSettings;
 import io.spring.initializr.generator.spike.configuration.WebFoldersContributor;
@@ -86,6 +89,21 @@ public class InitializrProjectGenerationConfiguration {
 	public KotlinProjectSettings kotlinProjectSettings() {
 		return new InitializrMetadataKotlinProjectSettings(this.projectDescription,
 				this.metadata);
+	}
+
+	@Bean
+	@ConditionalOnKotlinLanguage
+	@ConditionalOnMaven
+	public KotlinJpaMavenBuildCustomizer kotlinJpaMavenBuildCustomizer() {
+		return new KotlinJpaMavenBuildCustomizer(this.metadata);
+	}
+
+	@Bean
+	@ConditionalOnKotlinLanguage
+	@ConditionalOnGradle
+	public KotlinJpaGradleBuildCustomizer kotlinJpaGradleBuildCustomizer(
+			KotlinProjectSettings settings) {
+		return new KotlinJpaGradleBuildCustomizer(this.metadata, settings);
 	}
 
 	@Bean
