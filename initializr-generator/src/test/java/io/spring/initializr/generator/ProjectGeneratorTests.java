@@ -213,7 +213,7 @@ public class ProjectGeneratorTests extends AbstractProjectGeneratorTests {
 		request.setType("gradle-project");
 		generateProject(request).isJavaWarProject().isGradleProject().gradleBuildAssert()
 				// This is tagged as web facet so it brings the web one
-				.contains("apply plugin: 'war'")
+				.contains("plugins {").contains("id 'war'")
 				.contains("implementation 'org.foo:thymeleaf'")
 				.doesNotContain(
 						"implementation 'org.springframework.boot:spring-boot-starter-web'")
@@ -520,7 +520,8 @@ public class ProjectGeneratorTests extends AbstractProjectGeneratorTests {
 	public void gradleBuildWithSpringBoot20() {
 		ProjectRequest request = createProjectRequest("web");
 		request.setBootVersion("2.0.0.RELEASE");
-		generateGradleBuild(request).contains("apply plugin: 'org.springframework.boot'")
+		generateGradleBuild(request).contains("plugins {")
+				.contains("id 'org.springframework.boot' version '2.0.0.RELEASE'")
 				.doesNotContain("apply plugin: 'spring-boot'")
 				.contains("apply plugin: 'io.spring.dependency-management'")
 				.contains(
@@ -619,7 +620,7 @@ public class ProjectGeneratorTests extends AbstractProjectGeneratorTests {
 		applyMetadata(metadata);
 		ProjectRequest request = createProjectRequest("foo");
 		generateGradleBuild(request).contains("dependencyManagement {")
-				.contains("imports {").contains("mavenBom \"org.acme:foo-bom:1.2.3\"");
+				.contains("imports {").contains("mavenBom 'org.acme:foo-bom:1.2.3'");
 	}
 
 	@Test
