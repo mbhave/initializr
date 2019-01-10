@@ -53,7 +53,7 @@ public class InitializrMetadataMavenBuildContributor
 			String versionProperty = "spring-boot.version";
 			BillOfMaterials springBootBom = ConceptTranslator.toBom(this.metadata
 					.createSpringBootBom(springBootVersion, versionProperty));
-			if (hasBom(build, springBootBom)) {
+			if (!hasBom(build, springBootBom)) {
 				build.addInternalVersionProperty(versionProperty, springBootVersion);
 				build.boms().add("spring-boot", springBootBom);
 			}
