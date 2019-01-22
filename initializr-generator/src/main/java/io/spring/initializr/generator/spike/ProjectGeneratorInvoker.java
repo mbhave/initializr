@@ -24,7 +24,9 @@ import java.util.function.Consumer;
 import io.spring.initializr.generator.ProjectRequest;
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.BuildItemResolver;
+import io.spring.initializr.generator.buildsystem.gradle.GradleBuild;
 import io.spring.initializr.generator.buildsystem.gradle.GradleBuildSystem;
+import io.spring.initializr.generator.buildsystem.maven.MavenBuild;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuildSystem;
 import io.spring.initializr.generator.language.Language;
 import io.spring.initializr.generator.packaging.Packaging;
@@ -147,6 +149,16 @@ public class ProjectGeneratorInvoker {
 								ConceptTranslator.toVersionProperty(versionProperty),
 								valueSupplier.get());
 					});
+			if (build instanceof MavenBuild) {
+				request.getBuildProperties().getMaven()
+						.forEach((key, valueSupplier) -> ((MavenBuild) build)
+								.setProperty(key, valueSupplier.get()));
+			}
+			if (build instanceof GradleBuild) {
+				request.getBuildProperties().getGradle()
+						.forEach((key, valueSupplier) -> ((GradleBuild) build)
+								.ext(key, valueSupplier.get()));
+			}
 		};
 	}
 
