@@ -26,9 +26,10 @@ import io.spring.initializr.generator.spike.build.InitializrMetadataBuildItemRes
 import io.spring.initializr.metadata.Dependency;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.test.metadata.InitializrMetadataTestBuilder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junitpioneer.jupiter.TempDirectory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,10 +38,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Stephane Nicoll
  */
+@ExtendWith(TempDirectory.class)
 public class WebFoldersContributorTests {
 
-	@Rule
-	public final TemporaryFolder folder = new TemporaryFolder();
+	private Path projectDir;
+
+	@BeforeEach
+	void setup(@TempDirectory.TempDir Path path) {
+		this.projectDir = path;
+	}
 
 	@Test
 	public void webFoldersCreatedWithWebDependency() throws IOException {
@@ -80,8 +86,7 @@ public class WebFoldersContributorTests {
 	}
 
 	private Path contribute(Build build, InitializrMetadata metadata) throws IOException {
-		Path projectDir = this.folder.newFolder().toPath();
-		new WebFoldersContributor(build, metadata).contribute(projectDir);
+		new WebFoldersContributor(build, metadata).contribute(this.projectDir);
 		return projectDir;
 	}
 

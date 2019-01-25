@@ -23,7 +23,7 @@ import io.spring.initializr.generator.buildsystem.maven.MavenPlugin;
 import io.spring.initializr.metadata.Dependency;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.test.metadata.InitializrMetadataTestBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
