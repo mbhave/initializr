@@ -75,7 +75,7 @@ public abstract class AbstractProjectGenerationTests {
 			Consumer<ProjectDescription> descriptionCustomizer,
 			InitializrMetadata metadata) {
 		ProjectGeneratorTester projectTester = new ProjectGeneratorTester()
-				.withDirectory(this.tempDir).withIndentingWriterFactory()
+				.withDirectory(this.tempDir)
 				.withDescriptionCustomizer((description) -> setupProjectDescription(
 						language, version, build, description))
 				.withDescriptionCustomizer(descriptionCustomizer).withContextInitializer(
