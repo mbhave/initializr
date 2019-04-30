@@ -31,6 +31,8 @@ import java.util.function.Consumer;
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.BuildItemResolver;
 
+import org.springframework.util.ClassUtils;
+
 /**
  * Gradle build configuration for a project.
  *
@@ -137,7 +139,9 @@ public class GradleBuild extends Build {
 
 	public void customizeTasksWithType(String typeName,
 			Consumer<TaskCustomization> customizer) {
-		customizer.accept(this.tasksWithTypeCustomizations.computeIfAbsent(typeName,
+		String shortName = ClassUtils.getShortName(typeName);
+		this.importedTypes.add(typeName);
+		customizer.accept(this.tasksWithTypeCustomizations.computeIfAbsent(shortName,
 				(name) -> new TaskCustomization()));
 	}
 
