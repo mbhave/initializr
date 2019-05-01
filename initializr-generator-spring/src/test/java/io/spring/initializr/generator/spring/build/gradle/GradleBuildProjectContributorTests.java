@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.spring.initializr.generator.buildsystem.gradle.GradleBuild;
+import io.spring.initializr.generator.buildsystem.gradle.GradleBuildWriter;
 import io.spring.initializr.generator.buildsystem.gradle.GroovyDslGradleBuildWriter;
 import io.spring.initializr.generator.io.IndentingWriterFactory;
 import io.spring.initializr.generator.io.SimpleIndentStrategy;
@@ -30,25 +31,30 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link GroovyDslGradleBuildProjectContributor}.
+ * Tests for {@link GradleBuildProjectContributor}.
  *
  * @author Andy Wilkinson
  * @author Stephane Nicoll
- * @author Jean-Baptiste Nizet
+ * @author Madhura Bhave
  */
-class GroovyDslGradleBuildProjectContributorTests {
+public class GradleBuildProjectContributorTests {
+
+	private GradleBuildProjectContributor contributor;
 
 	@Test
 	void gradleBuildIsContributedInProjectStructure(@TempDir Path projectDir)
 			throws IOException {
 		GradleBuild build = new GradleBuild();
-		new GroovyDslGradleBuildProjectContributor(new GroovyDslGradleBuildWriter(),
-				build, IndentingWriterFactory.withDefaultSettings())
-						.contribute(projectDir);
-		Path buildGradle = projectDir.resolve("build.gradle");
-		assertThat(buildGradle).isRegularFile();
+		this.contributor = new GradleBuildProjectContributor(
+				mock(GradleBuildWriter.class), build,
+				IndentingWriterFactory.withDefaultSettings(),
+				new TestGradleFileNameProvider());
+		this.contributor.contribute(projectDir);
+		Path buildGradleKts = projectDir.resolve("build.gradle.test");
+		assertThat(buildGradleKts).isRegularFile();
 	}
 
 	@Test
@@ -83,9 +89,24 @@ class GroovyDslGradleBuildProjectContributorTests {
 	private List<String> generateBuild(GradleBuild build,
 			IndentingWriterFactory indentingWriterFactory) throws IOException {
 		StringWriter writer = new StringWriter();
-		new GroovyDslGradleBuildProjectContributor(new GroovyDslGradleBuildWriter(),
-				build, indentingWriterFactory).writeBuild(writer);
+		new GradleBuildProjectContributor(new GroovyDslGradleBuildWriter(), build,
+				indentingWriterFactory, new TestGradleFileNameProvider())
+						.writeBuild(writer);
 		return Arrays.asList(writer.toString().split("\\r?\\n"));
+	}
+
+	static class TestGradleFileNameProvider implements GradleDSLFileNameProvider {
+
+		@Override
+		public String getBuildFileName() {
+			return "build.gradle.test";
+		}
+
+		@Override
+		public String getSettingsFileName() {
+			return "settings.gradle.test";
+		}
+
 	}
 
 }

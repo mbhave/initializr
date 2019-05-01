@@ -35,8 +35,7 @@ import io.spring.initializr.generator.spring.build.BuildWriter;
  * @author Andy Wilkinson
  * @author Jean-Baptiste Nizet
  */
-public abstract class GradleBuildProjectContributor
-		implements BuildWriter, ProjectContributor {
+public class GradleBuildProjectContributor implements BuildWriter, ProjectContributor {
 
 	private final GradleBuildWriter buildWriter;
 
@@ -44,20 +43,21 @@ public abstract class GradleBuildProjectContributor
 
 	private final IndentingWriterFactory indentingWriterFactory;
 
-	private final String buildFileName;
+	private final GradleDSLFileNameProvider fileNameProvider;
 
 	protected GradleBuildProjectContributor(GradleBuildWriter buildWriter,
 			GradleBuild build, IndentingWriterFactory indentingWriterFactory,
-			String buildFileName) {
+			GradleDSLFileNameProvider fileNameProvider) {
 		this.buildWriter = buildWriter;
 		this.build = build;
 		this.indentingWriterFactory = indentingWriterFactory;
-		this.buildFileName = buildFileName;
+		this.fileNameProvider = fileNameProvider;
 	}
 
 	@Override
 	public final void contribute(Path projectRoot) throws IOException {
-		Path buildGradle = Files.createFile(projectRoot.resolve(this.buildFileName));
+		Path buildGradle = Files.createFile(
+				projectRoot.resolve(this.fileNameProvider.getBuildFileName()));
 		writeBuild(Files.newBufferedWriter(buildGradle));
 	}
 

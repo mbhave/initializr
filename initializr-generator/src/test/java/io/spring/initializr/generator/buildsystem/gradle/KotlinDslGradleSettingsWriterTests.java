@@ -73,6 +73,15 @@ class KotlinDslGradleSettingsWriterTests {
 	}
 
 	@Test
+	void gradleSettingsDoesNotUseRepositories() throws IOException {
+		GradleBuild build = new GradleBuild();
+		build.repositories().add("maven-central");
+		List<String> lines = generateSettings(build);
+		assertThat(lines).containsSequence("pluginManagement {", "    repositories {",
+				"        gradlePluginPortal()", "    }", "}");
+	}
+
+	@Test
 	void artifactIdShouldBeUsedAsTheRootProjectName() throws Exception {
 		GradleBuild build = new GradleBuild();
 		build.setArtifact("my-application");

@@ -59,6 +59,15 @@ class GroovyDslGradleSettingsWriterTests {
 	}
 
 	@Test
+	void gradleSettingsDoesNotUseRepositories() throws IOException {
+		GradleBuild build = new GradleBuild();
+		build.repositories().add("maven-central");
+		List<String> lines = generateSettings(build);
+		assertThat(lines).containsSequence("pluginManagement {", "    repositories {",
+				"        gradlePluginPortal()", "    }", "}");
+	}
+
+	@Test
 	void gradleBuildWithSnapshotPluginRepository() throws IOException {
 		GradleBuild build = new GradleBuild();
 		build.pluginRepositories().add("spring-snapshots", "Spring Snapshots",

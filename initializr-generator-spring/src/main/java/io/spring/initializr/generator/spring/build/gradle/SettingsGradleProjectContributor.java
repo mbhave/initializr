@@ -33,7 +33,7 @@ import io.spring.initializr.generator.project.contributor.ProjectContributor;
  * @author Andy Wilkinson
  * @author Jean-Baptiste Nizet
  */
-abstract class SettingsGradleProjectContributor implements ProjectContributor {
+public class SettingsGradleProjectContributor implements ProjectContributor {
 
 	private final GradleBuild build;
 
@@ -41,21 +41,22 @@ abstract class SettingsGradleProjectContributor implements ProjectContributor {
 
 	private final GradleSettingsWriter settingsWriter;
 
-	private final String settingsFileName;
+	private final GradleDSLFileNameProvider fileNameProvider;
 
 	protected SettingsGradleProjectContributor(GradleBuild build,
 			IndentingWriterFactory indentingWriterFactory,
-			GradleSettingsWriter settingsWriter, String settingsFileName) {
+			GradleSettingsWriter settingsWriter,
+			GradleDSLFileNameProvider fileNameProvider) {
 		this.build = build;
 		this.indentingWriterFactory = indentingWriterFactory;
 		this.settingsWriter = settingsWriter;
-		this.settingsFileName = settingsFileName;
+		this.fileNameProvider = fileNameProvider;
 	}
 
 	@Override
 	public final void contribute(Path projectRoot) throws IOException {
-		Path settingsGradle = Files
-				.createFile(projectRoot.resolve(this.settingsFileName));
+		Path settingsGradle = Files.createFile(
+				projectRoot.resolve(this.fileNameProvider.getSettingsFileName()));
 		try (IndentingWriter writer = this.indentingWriterFactory.createIndentingWriter(
 				"gradle", Files.newBufferedWriter(settingsGradle))) {
 			this.settingsWriter.writeTo(writer, this.build);

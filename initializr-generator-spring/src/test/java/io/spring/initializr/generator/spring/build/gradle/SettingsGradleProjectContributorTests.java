@@ -22,22 +22,27 @@ import java.nio.file.Path;
 import java.util.List;
 
 import io.spring.initializr.generator.buildsystem.gradle.GradleBuild;
+import io.spring.initializr.generator.buildsystem.gradle.GradleSettingsWriter;
 import io.spring.initializr.generator.io.IndentingWriterFactory;
 import io.spring.initializr.generator.io.SimpleIndentStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link KotlinDslSettingsGradleProjectContributor}.
+ * Tests for {@link SettingsGradleProjectContributor}.
  *
- * @author Jean-Baptiste Nizet
+ * @author Andy Wilkinson
+ * @author Madhura Bhave
  */
-class KotlinDslSettingsGradleProjectContributorTests {
+public class SettingsGradleProjectContributorTests {
 
 	@TempDir
 	Path directory;
+
+	private GradleSettingsWriter gradleSettingsWriter = mock(GradleSettingsWriter.class);
 
 	@Test
 	void gradleSettingsIsContributedToProject() throws IOException {
@@ -60,15 +65,6 @@ class KotlinDslSettingsGradleProjectContributorTests {
 				"    mavenCentral()", "    gradlePluginPortal()", "  }", "}");
 	}
 
-	@Test
-	void gradleSettingsDoesNotUseRepositories() throws IOException {
-		GradleBuild build = new GradleBuild();
-		build.repositories().add("maven-central");
-		List<String> lines = generateSettings(build);
-		assertThat(lines).containsSequence("pluginManagement {", "    repositories {",
-				"        gradlePluginPortal()", "    }", "}");
-	}
-
 	private List<String> generateSettings(GradleBuild build) throws IOException {
 		return generateSettings(build, IndentingWriterFactory.withDefaultSettings());
 	}
@@ -76,11 +72,26 @@ class KotlinDslSettingsGradleProjectContributorTests {
 	private List<String> generateSettings(GradleBuild build,
 			IndentingWriterFactory indentingWriterFactory) throws IOException {
 		Path projectDir = Files.createTempDirectory(this.directory, "project-");
-		new KotlinDslSettingsGradleProjectContributor(build, indentingWriterFactory)
-				.contribute(projectDir);
-		Path settingsGradle = projectDir.resolve("settings.gradle.kts");
+		new SettingsGradleProjectContributor(build, indentingWriterFactory,
+				this.gradleSettingsWriter, new TestGradleFileNameProvider())
+						.contribute(projectDir);
+		Path settingsGradle = projectDir.resolve("settings.gradle.test");
 		assertThat(settingsGradle).isRegularFile();
 		return Files.readAllLines(settingsGradle);
+	}
+
+	static class TestGradleFileNameProvider implements GradleDSLFileNameProvider {
+
+		@Override
+		public String getBuildFileName() {
+			return "build.gradle.test";
+		}
+
+		@Override
+		public String getSettingsFileName() {
+			return "settings.gradle.test";
+		}
+
 	}
 
 }
