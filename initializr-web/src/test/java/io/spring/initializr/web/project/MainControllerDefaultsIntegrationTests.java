@@ -32,7 +32,7 @@ class MainControllerDefaultsIntegrationTests extends AbstractInitializrControlle
 
 	@Test
 	void generateDefaultPom() {
-		String content = getRestTemplate().getForObject(createUrl("/pom.xml?style=web"), String.class);
+		String content = getRestTemplate().getForObject(createUrl("/pom.xml?dependencies=web"), String.class);
 		PomAssert pomAssert = new PomAssert(content);
 		pomAssert.hasGroupId("org.foo").hasArtifactId("foo-bar").hasVersion("1.2.4-SNAPSHOT")
 				.doesNotHaveNode("/project/packaging").hasName("FooBar").hasDescription("FooBar Project");

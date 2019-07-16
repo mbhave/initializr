@@ -46,7 +46,7 @@ class MainControllerEnvIntegrationTests extends AbstractInitializrControllerInte
 
 	@Test
 	void generateProjectWithInvalidName() {
-		downloadZip("/starter.zip?style=data-jpa&name=Invalid")
+		downloadZip("/starter.zip?dependencies=data-jpa&name=Invalid")
 				.isJavaProject(ProjectAssert.DEFAULT_PACKAGE_NAME, "FooBarApplication").isMavenProject()
 				.hasStaticAndTemplatesResources(false).pomAssert().hasDependenciesCount(2)
 				.hasSpringBootStarterDependency("data-jpa").hasSpringBootStarterTest();
