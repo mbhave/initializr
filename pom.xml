@@ -54,6 +54,8 @@
 		<module>initializr-actuator</module>
 		<module>initializr-docs</module>
 		<module>initializr-generator</module>
+		<module>initializr-conventions</module>
+		<module>initializr-spring-conventions</module>
 		<module>initializr-generator-spring</module>
 		<module>initializr-metadata</module>
 		<module>initializr-service-sample</module>
@@ -71,6 +73,11 @@
 			<dependency>
 				<groupId>io.spring.initializr</groupId>
 				<artifactId>initializr-generator</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.spring.initializr</groupId>
+				<artifactId>initializr-conventions</artifactId>
 				<version>${revision}</version>
 			</dependency>
 			<dependency>

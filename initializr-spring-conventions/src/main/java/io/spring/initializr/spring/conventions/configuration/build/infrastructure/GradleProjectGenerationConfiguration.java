@@ -1,0 +1,137 @@
+/*
+ * Copyright 2012-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.spring.initializr.spring.conventions.configuration.build.infrastructure;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import io.spring.initializr.conventions.build.BuildCustomizer;
+import io.spring.initializr.conventions.build.gradle.GradleBuildProjectContributor;
+import io.spring.initializr.conventions.build.gradle.SettingsGradleProjectContributor;
+import io.spring.initializr.conventions.util.LambdaSafe;
+import io.spring.initializr.generator.buildsystem.BuildItemResolver;
+import io.spring.initializr.generator.buildsystem.gradle.Gradle3BuildWriter;
+import io.spring.initializr.generator.buildsystem.gradle.GradleBuild;
+import io.spring.initializr.generator.buildsystem.gradle.GradleBuildSystem;
+import io.spring.initializr.generator.buildsystem.gradle.GroovyDslGradleBuildWriter;
+import io.spring.initializr.generator.buildsystem.gradle.GroovyDslGradleSettingsWriter;
+import io.spring.initializr.generator.buildsystem.gradle.KotlinDslGradleBuildWriter;
+import io.spring.initializr.generator.buildsystem.gradle.KotlinDslGradleSettingsWriter;
+import io.spring.initializr.generator.condition.ConditionalOnBuildSystem;
+import io.spring.initializr.generator.io.IndentingWriterFactory;
+import io.spring.initializr.spring.conventions.build.gradle.ConditionalOnGradleVersion;
+
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Configuration for gradle build system infrastructure.
+ *
+ * @author Andy Wilkinson
+ * @author Jean-Baptiste Nizet
+ */
+@Configuration
+@ConditionalOnBuildSystem(GradleBuildSystem.ID)
+class GradleProjectGenerationConfiguration {
+
+	private final IndentingWriterFactory indentingWriterFactory;
+
+	public GradleProjectGenerationConfiguration(IndentingWriterFactory indentingWriterFactory) {
+		this.indentingWriterFactory = indentingWriterFactory;
+	}
+
+	@Bean
+	public GradleBuild gradleBuild(ObjectProvider<BuildItemResolver> buildItemResolver,
+			ObjectProvider<BuildCustomizer<?>> buildCustomizers) {
+		return createGradleBuild(buildItemResolver.getIfAvailable(),
+				buildCustomizers.orderedStream().collect(Collectors.toList()));
+	}
+
+	@SuppressWarnings("unchecked")
+	private GradleBuild createGradleBuild(BuildItemResolver buildItemResolver,
+			List<BuildCustomizer<?>> buildCustomizers) {
+		GradleBuild build = (buildItemResolver != null) ? new GradleBuild(buildItemResolver) : new GradleBuild();
+		LambdaSafe.callbacks(BuildCustomizer.class, buildCustomizers, build)
+				.invoke((customizer) -> customizer.customize(build));
+		return build;
+	}
+
+	@Bean
+	@ConditionalOnBuildSystem(id = GradleBuildSystem.ID, dialect = GradleBuildSystem.DIALECT_GROOVY)
+	public GradleBuildProjectContributor gradleBuildProjectContributor(GroovyDslGradleBuildWriter buildWriter,
+			GradleBuild build) {
+		return new GradleBuildProjectContributor(buildWriter, build, this.indentingWriterFactory, "build.gradle");
+	}
+
+	@Bean
+	@ConditionalOnBuildSystem(id = GradleBuildSystem.ID, dialect = GradleBuildSystem.DIALECT_KOTLIN)
+	public GradleBuildProjectContributor gradleKtsBuildProjectContributor(KotlinDslGradleBuildWriter buildWriter,
+			GradleBuild build) {
+		return new GradleBuildProjectContributor(buildWriter, build, this.indentingWriterFactory, "build.gradle.kts");
+	}
+
+	@Configuration
+	@ConditionalOnGradleVersion("3")
+	static class Gradle3ProjectGenerationConfiguration {
+
+		@Bean
+		Gradle3BuildWriter gradleBuildWriter() {
+			return new Gradle3BuildWriter();
+		}
+
+	}
+
+	@Configuration
+	@ConditionalOnBuildSystem(id = GradleBuildSystem.ID, dialect = GradleBuildSystem.DIALECT_GROOVY)
+	@ConditionalOnGradleVersion({ "4", "5" })
+	static class Gradle4Or5ProjectGenerationConfiguration {
+
+		@Bean
+		GroovyDslGradleBuildWriter gradleBuildWriter() {
+			return new GroovyDslGradleBuildWriter();
+		}
+
+		@Bean
+		SettingsGradleProjectContributor settingsGradleProjectContributor(GradleBuild build,
+				IndentingWriterFactory indentingWriterFactory) {
+			return new SettingsGradleProjectContributor(build, indentingWriterFactory,
+					new GroovyDslGradleSettingsWriter(), "settings.gradle");
+		}
+
+	}
+
+	@Configuration
+	@ConditionalOnBuildSystem(id = GradleBuildSystem.ID, dialect = GradleBuildSystem.DIALECT_KOTLIN)
+	@ConditionalOnGradleVersion("5")
+	static class GradleKtsProjectGenerationConfiguration {
+
+		@Bean
+		KotlinDslGradleBuildWriter gradleKtsBuildWriter() {
+			return new KotlinDslGradleBuildWriter();
+		}
+
+		@Bean
+		SettingsGradleProjectContributor settingsGradleKtsProjectContributor(GradleBuild build,
+				IndentingWriterFactory indentingWriterFactory) {
+			return new SettingsGradleProjectContributor(build, indentingWriterFactory,
+					new KotlinDslGradleSettingsWriter(), "settings.gradle.kts");
+		}
+
+	}
+
+}

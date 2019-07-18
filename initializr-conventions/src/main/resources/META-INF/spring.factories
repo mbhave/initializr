@@ -1,0 +1,14 @@
+io.spring.initializr.generator.project.ProjectGenerationConfiguration=\
+BuildProjectGenerationConfiguration,\
+GradleProjectGenerationConfiguration,\
+MavenProjectGenerationConfiguration,\
+SourceCodeProjectGenerationConfiguration,\
+GroovyProjectGenerationConfiguration,\
+JavaProjectGenerationConfiguration,\
+KotlinProjectGenerationConfiguration,\
+ApplicationConfigurationProjectGenerationConfiguration,\
+HelpDocumentProjectGenerationConfiguration,\
+GitProjectGenerationConfiguration
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+GeneratorSpringAutoConfiguration
